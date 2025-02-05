@@ -47,6 +47,21 @@
             margin-top: 80px; /* Ensure content doesn't overlap navbar */
             padding: 20px;
         }
+
+        @media (max-width: 768px) {
+            .navbar {
+                height: 50px;
+            }
+
+            .rive-container {
+                width: 40px;
+                height: 40px;
+            }
+
+            .brand {
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -67,23 +82,41 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
-            const riveInstance = new rive.Rive({
-                src: "assets/heart-logo-3.riv", // Replace with your Rive file path
-                canvas: document.getElementById("riveCanvas"),
-                autoplay: true,
-                stateMachines: "StateMachineName", // Replace with your state machine name
-                onLoad: () => {
-                    const inputs = riveInstance.stateMachineInputs("StateMachineName");
-                    const heartInput = inputs.find(input => input.name === "heart");
-
-                    if (heartInput) {
-                        window.addEventListener("scroll", () => {
-                            const scrollPercentage = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
-                            heartInput.value = scrollPercentage >= 20;
-                        });
-                    }
+            try {
+                const canvas = document.getElementById("riveCanvas");
+                if (!canvas) {
+                    throw new Error("Canvas element not found");
                 }
-            });
+
+                const riveInstance = new rive.Rive({
+                    src: "/assets/heart-logo-3.riv", // Replace with your Rive file path
+                    canvas: canvas,
+                    autoplay: true,
+                    stateMachines: "State Machine 1", // Replace with your state machine name
+                    onLoad: () => {
+                        try {
+                            const inputs = riveInstance.stateMachineInputs("StateMachineName");
+                            const heartInput = inputs.find(input => input.name === "heart");
+
+                            if (!heartInput) {
+                                throw new Error("Heart input not found in state machine");
+                            }
+
+                            window.addEventListener("scroll", () => {
+                                const scrollPercentage = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+                                heartInput.value = scrollPercentage >= 20;
+                            });
+                        } catch (error) {
+                            console.error("Error setting up Rive animation:", error);
+                        }
+                    },
+                    onError: (err) => {
+                        console.error("Error loading Rive file:", err);
+                    }
+                });
+            } catch (error) {
+                console.error("Error initializing Rive:", error);
+            }
         });
     </script>
 
